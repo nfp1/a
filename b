@@ -1154,7 +1154,7 @@ associateModule("InfiniteAura,IA", [!1, !1], "Combat", [{
     st: 0,
     tick() {
         try {
-            var mod = getModule("InfiniteAura");
+            /*var mod = getModule("InfiniteAura");
             var sett = getSettings(mod, "Range", 0);
             var delay = getSettings(mod, "Delay", 0);
             var ent = getCode(mod).getNearestEntity(sett);
@@ -1199,6 +1199,50 @@ associateModule("InfiniteAura,IA", [!1, !1], "Combat", [{
                         getCode(mod).timing = delay
                     }
                 }
+            }*/
+            var mod = getModule("InfiniteAura");
+            var sett = getSettings(mod, "Range", 0);
+            var delay = getSettings(mod, "Delay", 0);
+            var ent = getCode(mod).getNearestEntity(sett);
+            if (getState(mod) && ent != -1) {
+
+                if (Entity.getX(ent) != 0 && Entity.getY(ent) != 0 && Entity.getZ(ent) != 0) {
+                    getCode(mod).timing--;
+                    //getCode(mod).timing = 15
+                    if (getCode(mod).timing == 1) {
+                        //getCode(mod).lastpos[0] = Player.getX();
+                        //getCode(mod).lastpos[1] = Player.getY();
+                        //getCode(mod).lastpos[2] = Player.getZ();
+                        //getCode(mod).aim(ent);
+                        //getCode(mod).oldrot[0] = Entity.getYaw(getPlayerEnt());
+                        //getCode(mod).oldrot[1] = Entity.getPitch(getPlayerEnt());
+                        var x = Entity.getX(ent);
+                        var y = Entity.getY(ent) + 3;
+                        var z = Entity.getZ(ent);
+                        setVelY(Player.getEntity(), -0.1);
+                        Entity.setCollisionSize(ent, 10, 10);
+                        Entity.setPosition(Player.getEntity(), x, y, z);
+                        getCode(mod).aim(ent)
+                        getCode(mod).swing();
+                    };
+                    if(getCode(mod).timing == 0) {
+                        //Entity.setCollisionSize(getCode(mod).getNearestEntity(sett), 0.8, 1.8);
+                        Entity.setPosition(Player.getEntity(), getCode(mod).lastpos[0], getCode(mod).lastpos[1], getCode(mod).lastpos[2]);
+                        setVelY(Player.getEntity(), -0.1);
+                        //getCode(mod).st == 1 ? setVelX(Player.getEntity(), 0.1) : 
+                        //getCode(mod).st == 1 ? getCode(mod).st = 0 : getCode(mod).st++;
+                        if(getCode(mod).st == 1){
+                            getCode(mod).st = 0;
+                            setVelX(Player.getEntity(), 0.1);
+                        }else{
+                            getCode(mod).st++;
+                            setVelX(Player.getEntity(), -0.1);
+                        }
+                        getCode(mod).aim(ent);
+                        //Entity.setRot(Player.getEntity(), getCode(mod).oldrot[0], getCode(mod).oldrot[1]);
+                        getCode(mod).timing = delay
+                }
+            }
             }
         } catch (e) {
             errorMessage(e)
@@ -2396,7 +2440,7 @@ var button = () => {
     uithread(() => {
         try {
             let text = new android.widget.TextView(ctx);
-            text.setText(android.text.Html.fromHtml('<font color="red">H</font><font color="#FFFFFF">alcyon - build 2</font>'));
+            text.setText(android.text.Html.fromHtml('<font color="red">H</font><font color="#FFFFFF">alcyon - build 2.1</font>'));
             text.setTextColor(android.graphics.Color.WHITE);
             text.setTextSize(gs(17));
             text.setTypeface(android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.BOLD));
@@ -2641,7 +2685,7 @@ var menu = () => {
             params.setMargins(gs(dip2px(10)), gs(dip2px(5)), gs(dip2px(10)), gs(dip2px(5)));
 
             let text_main = new android.widget.TextView(ctx);
-            Halcyon.isDev ? text_main.setText(android.text.Html.fromHtml('<font color="#d90000">H</font><font color="#ffffff">alcyon - build 2 Dev</font>')) : text_main.setText(android.text.Html.fromHtml('<font color="#d90000">H</font><font color="#ffffff">alcyon - build 2 Alpha</font>'))
+            Halcyon.isDev ? text_main.setText(android.text.Html.fromHtml('<font color="#d90000">H</font><font color="#ffffff">alcyon - build 2.1 Dev</font>')) : text_main.setText(android.text.Html.fromHtml('<font color="#d90000">H</font><font color="#ffffff">alcyon - build 2.1 Alpha</font>'))
             text_main.setTextColor(-1);
             text_main.setGravity(android.view.Gravity.CENTER);
             text_main.setLayoutParams(params);
