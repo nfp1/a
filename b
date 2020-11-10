@@ -1,7 +1,7 @@
 /*--------------------------------*\
 | 🔔 script: Halcyon
 | 🔥 author: au7yn
-| 📅 version: 1.0 ALPHA
+| 📅 version: 1.0 ALPHA B2
 | 📛 Encryption By NoFairPlay Team 
 |
 | ⛔ Anti Non-launcher Load
@@ -268,14 +268,14 @@ associateModule("KillAura,K", [!1, !1], "Combat", [{
         if (state && confirmScreenSafe()) {
             if (Mode == "Single") {
                 var ent = getCode(mod).getNearestEntity(Range);
-                if (ent != -1 || (Entity.getX(ent) != 0 && Entity.getY(ent) != 0 && Entity.getZ(ent) != 0) && ent != Player.getEntity()) {
+                if (ent != -1  && getCode(getModule("EntityList")).isValid(ent)) {
                     Entity.setCollisionSize(ent, getCode(mod).getDistance(ent) * 2 + 2, getCode(mod).getDistance(ent) * 2 + 2);
                     inst.sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_Q);
                 }
             };
             if (Mode == "Switch") {
                 var ent = getCode(mod).getNearestEntity(Range);
-                if (ent != -1 || (Entity.getX(ent) != 0 && Entity.getY(ent) != 0 && Entity.getZ(ent) != 0) && ent != Player.getEntity()) {
+                if (ent != -1 && getCode(getModule("EntityList")).isValid(ent)) {
                     Entity.setCollisionSize(ent, getCode(mod).getDistance(ent) * 2 + 2, getCode(mod).getDistance(ent) * 2 + 2);
                     inst.sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_Q);
                     Entity.setCollisionSize(ent, 0.8, 1.8);
@@ -290,7 +290,7 @@ associateModule("KillAura,K", [!1, !1], "Combat", [{
                     var players = Server.getAllPlayers();
                 }
                 players.forEach(function (e) {
-                    if (e != getPlayerEnt() && !getCode(getModule("ClickFriends")).isFriend(e)) {
+                    if (e != getPlayerEnt() && !getCode(getModule("ClickFriends")).isFriend(e) && e!= -1) {
                         if (getCode(mod).getDistance(e) <= Range) {
                             nearestEntities.push(e);
                         }
@@ -326,7 +326,7 @@ associateModule("KillAura,K", [!1, !1], "Combat", [{
                         new android.os.Handler().postDelayed(new java.lang.Runnable({
                             run() {
                                 try {
-                                    getCode(mod).swing();
+                                    if(getState(mod)) getCode(mod).swing();
 
                                     new android.os.Handler().postDelayed(this, 1000 / CPS);
                                 } catch (e) {
@@ -637,7 +637,11 @@ associateModule("Flight,F", [!1, !1], "Movement", [{
     },
     toggle() {
         var mod = getModule("Flight");
-        if (getState(mod) && getSettings(mod, "Type", 0) == "Mineplex") Entity.setPositionRelative(getPlayerEnt(), 0, 0.05, 0);
+        if (getState(mod) && getSettings(mod, "Type", 0) == "Mineplex") {Entity.setPositionRelative(getPlayerEnt(), 0, 0.05, 0);}else{
+            setVelX(Player.getEntity(), 0);
+            setVelY(Player.getEntity(), -0.1);
+            setVelZ(Player.getEntity(), 0);
+        }
     }
 });
 associateModule("Speed,S", [!1, !1], "Movement", [{
@@ -661,12 +665,16 @@ associateModule("Speed,S", [!1, !1], "Movement", [{
 associateModule("LongJump,L", [!1, !1], "Movement", [{
     name: "Velocity",
     type: "int",
-    value: "1.5,0.1,2"
+    value: "2,0.1,3"
 }], {
     gui: null,
     jump() {
         var mod = getModule("LongJump");
         var sett = getSettings(mod, "Velocity", 0);
+        Entity.setPositionRelative(getPlayerEnt(), 0, 0.05, 0);
+        setVelX(Player.getEntity(), 0);
+            setVelY(Player.getEntity(), 0);
+            setVelZ(Player.getEntity(), 0);
         let p = ((Entity.getPitch(getPlayerEnt()) + 90) * Math.PI) / 180;
         let y = ((Entity.getYaw(getPlayerEnt()) + 90) * Math.PI) / 180;
         let xx = Math.sin(p) * Math.cos(y);
@@ -1003,6 +1011,17 @@ associateModule("FieldOfView,Fv", [!1, !1], "Misc", [{
         }
     }
 });
+associateModule("Haste,He", [!1, !1], "Player", 0, {
+    toggle() {
+        var mod = getModule("Haste");
+        if (getState(mod)) {
+            Entity.addEffect(Player.getEntity(), 3, 5000000, 127, true, false);
+        } else {
+            Entity.removeEffect(Player.getEntity(), 3);
+        }
+    }
+});
+
 
 associateModule("ClickFriends,CF", [!1, !1], "Misc", 0, {
     list: [],
@@ -1042,10 +1061,22 @@ associateModule("ClickFriends,CF", [!1, !1], "Misc", 0, {
         };
     }
 });
+associateModule("FastEat,FE", [!1, !1], "Player", 0, {
+    on: "Item['setProperties'](0x104,{'use_duration':0x1,'food':{'nutrition':0x4,'saturation_modifier':'low','is_meat':![]}}),Item['setProperties'](0x142,{'stack_by_data':!![],'use_duration':0x1,'foil':![],'food':{'nutrition':0x4,'saturation_modifier':'supernatural','is_meat':![],'effects':[{'name':'regeneration','chance':0x1,'duration':0x5,'amplifier':0x1},{'name':'absorption','chance':0x1,'duration':0x78,'amplifier':0x0}],'enchanted_effects':[{'name':'regeneration','chance':0.66,'duration':0x1e,'amplifier':0x4},{'name':'absorption','chance':0.66,'duration':0x78,'amplifier':0x0},{'name':'resistance','chance':0.66,'duration':0x12c,'amplifier':0x0},{'name':'fire_resistance','chance':0.66,'duration':0x12c,'amplifier':0x0}]}}),Item['setProperties'](0x104,{'use_duration':0x1,'max_stack_size':0x1,'food':{'nutrition':0x6,'saturation_modifier':'normal','is_meat':![],'using_converts_to':'bowl'}}),Item['setProperties'](0x129,{'use_duration':0x1,'food':{'nutrition':0x5,'saturation_modifier':'normal','is_meat':![]}}),Item['setProperties'](0x13f,{'use_duration':0x1,'food':{'nutrition':0x3,'saturation_modifier':'low','is_meat':!![]}}),Item['setProperties'](0x140,{'use_duration':0x1,'food':{'nutrition':0x8,'saturation_modifier':'good','is_meat':!![]}}),Item['setProperties'](0x15d,{'use_duration':0x1,'max_damage':0x0,'stacked_by_data':!![],'food':{'nutrition':0x2,'saturation_modifier':'poor','is_meat':!![]}}),Item['setProperties'](0x1cc,{'use_duration':0x1,'max_damage':0x0,'stacked_by_data':!![],'food':{'nutrition':0x2,'saturation_modifier':'poor','is_meat':!![]}}),Item['setProperties'](0x1cd,{'use_duration':0x1,'max_damage':0x0,'stacked_by_data':!![],'food':{'nutrition':0x1,'saturation_modifier':'poor','is_meat':!![]}}),Item['setProperties'](0x1ce,{'use_duration':0x1,'max_damage':0x0,'stacked_by_data':!![],'food':{'nutrition':0x1,'saturation_modifier':'poor','is_meat':!![],'effects':[{'name':'poison','duration':0x3c,'amplifier':0x3},{'name':'nausea','duration':0xf,'amplifier':0x1},{'name':'hunger','duration':0xf,'amplifier':0x2}]}}),Item['setProperties'](0x15e,{'use_duration':0x1,'max_damage':0x0,'stacked_by_data':!![],'food':{'nutrition':0x5,'saturation_modifier':'normal','eat_sound':'random.burp','is_meat':!![]}}),Item['setProperties'](0x1cf,{'use_duration':0x1,'max_damage':0x0,'stacked_by_data':!![],'food':{'nutrition':0x6,'saturation_modifier':'good','is_meat':!![]}}),Item['setProperties'](0x168,{'use_duration':0x1,'food':{'nutrition':0x2,'saturation_modifier':'poor','is_meat':![]}}),Item['setProperties'](0x165,{'use_duration':0x1,'food':{'nutrition':0x2,'saturation_modifier':'low','is_meat':![]}}),Item['setProperties'](0x16b,{'use_duration':0x1,'food':{'nutrition':0x3,'saturation_modifier':'low','is_meat':!![]}}),Item['setProperties'](0x16c,{'use_duration':0x1,'food':{'nutrition':0x8,'saturation_modifier':'good','is_meat':!![]}}),Item['setProperties'](0x16d,{'use_duration':0x1,'food':{'nutrition':0x2,'saturation_modifier':'low','is_meat':!![],'effects':[{'name':'hunger','chance':0.3,'duration':0x1e,'amplifier':0x0}]}}),Item['setProperties'](0x16e,{'use_duration':0x1,'food':{'nutrition':0x6,'saturation_modifier':'normal','is_meat':!![]}}),Item['setProperties'](0x1a7,{'use_duration':0x1,'food':{'nutrition':0x2,'saturation_modifier':'low','is_meat':!![]}}),Item['setProperties'](0x1a8,{'use_duration':0x1,'food':{'nutrition':0x6,'saturation_modifier':'good','is_meat':!![]}}),Item['setProperties'](0x16f,{'use_duration':0x1,'food':{'nutrition':0x4,'saturation_modifier':'poor','is_meat':!![],'effects':[{'name':'hunger','chance':0.8,'duration':0x1e,'amplifier':0x0}]}}),Item['setProperties'](0x177,{'use_duration':0x1,'food':{'nutrition':0x2,'saturation_modifier':'good','is_meat':![],'effects':[{'name':'poison','chance':0x1,'duration':0x5,'amplifier':0x0}]}}),Item['setProperties'](0x187,{'use_duration':0x1,'food':{'nutrition':0x3,'saturation_modifier':'normal','is_meat':![]},'seed':{'crop_result':'carrots','plant_at':'farmland'}}),Item['setProperties'](0x188,{'use_duration':0x1,'food':{'nutrition':0x1,'saturation_modifier':'low','is_meat':![]},'seed':{'crop_result':'potatoes','plant_at':'farmland'}}),Item['setProperties'](0x189,{'use_duration':0x1,'food':{'nutrition':0x5,'saturation_modifier':'normal','is_meat':![]}}),Item['setProperties'](0x18a,{'use_duration':0x1,'food':{'nutrition':0x2,'saturation_modifier':'low','is_meat':![],'effects':[{'name':'poison','chance':0.6,'duration':0x5,'amplifier':0x0}]}}),Item['setProperties'](0x18c,{'use_duration':0x1,'food':{'nutrition':0x6,'saturation_modifier':'supernatural','is_meat':![]}}),Item['setProperties'](0x190,{'use_duration':0x1,'food':{'nutrition':0x8,'saturation_modifier':'low','is_meat':![]}}),Item['setProperties'](0x19b,{'use_duration':0x1,'food':{'nutrition':0x3,'saturation_modifier':'low','is_meat':!![]}}),Item['setProperties'](0x19c,{'use_duration':0x1,'food':{'nutrition':0x5,'saturation_modifier':'normal','is_meat':!![]}}),Item['setProperties'](0x19d,{'use_duration':0x1,'max_stack_size':0x1,'food':{'nutrition':0xa,'saturation_modifier':'normal','using_converts_to':'bowl','is_meat':!![]}}),Item['setProperties'](0x1cb,{'use_duration':0x1,'food':{'nutrition':0x1,'saturation_modifier':'normal','is_meat':![]}}),Item['setProperties'](0x1c9,{'use_duration':0x1,'food':{'nutrition':0x1,'saturation_modifier':'normal','is_meat':![]}});",
+    off: "Item['setProperties'](0x104,{'use_duration':0x20,'food':{'nutrition':0x4,'saturation_modifier':'low','is_meat':![]}}),Item['setProperties'](0x104,{'use_duration':0x20,'max_stack_size':0x1,'food':{'nutrition':0x6,'saturation_modifier':'normal','is_meat':![],'using_converts_to':'bowl'}}),Item['setProperties'](0x129,{'use_duration':0x20,'food':{'nutrition':0x5,'saturation_modifier':'normal','is_meat':![]}}),Item['setProperties'](0x13f,{'use_duration':0x20,'food':{'nutrition':0x3,'saturation_modifier':'low','is_meat':!![]}}),Item['setProperties'](0x140,{'use_duration':0x20,'food':{'nutrition':0x8,'saturation_modifier':'good','is_meat':!![]}}),Item['setProperties'](0x15d,{'use_duration':0x20,'max_damage':0x0,'stacked_by_data':!![],'food':{'nutrition':0x2,'saturation_modifier':'poor','is_meat':!![]}}),Item['setProperties'](0x1cc,{'use_duration':0x20,'max_damage':0x0,'stacked_by_data':!![],'food':{'nutrition':0x2,'saturation_modifier':'poor','is_meat':!![]}}),Item['setProperties'](0x1cd,{'use_duration':0x20,'max_damage':0x0,'stacked_by_data':!![],'food':{'nutrition':0x1,'saturation_modifier':'poor','is_meat':!![]}}),Item['setProperties'](0x1ce,{'use_duration':0x20,'max_damage':0x0,'stacked_by_data':!![],'food':{'nutrition':0x1,'saturation_modifier':'poor','is_meat':!![],'effects':[{'name':'poison','duration':0x3c,'amplifier':0x3},{'name':'nausea','duration':0xf,'amplifier':0x1},{'name':'hunger','duration':0xf,'amplifier':0x2}]}}),Item['setProperties'](0x15e,{'use_duration':0x20,'max_damage':0x0,'stacked_by_data':!![],'food':{'nutrition':0x5,'saturation_modifier':'normal','eat_sound':'random.burp','is_meat':!![]}}),Item['setProperties'](0x1cf,{'use_duration':0x20,'max_damage':0x0,'stacked_by_data':!![],'food':{'nutrition':0x6,'saturation_modifier':'good','is_meat':!![]}}),Item['setProperties'](0x168,{'use_duration':0x20,'food':{'nutrition':0x2,'saturation_modifier':'poor','is_meat':![]}}),Item['setProperties'](0x165,{'use_duration':0x20,'food':{'nutrition':0x2,'saturation_modifier':'low','is_meat':![]}}),Item['setProperties'](0x16b,{'use_duration':0x20,'food':{'nutrition':0x3,'saturation_modifier':'low','is_meat':!![]}}),Item['setProperties'](0x16c,{'use_duration':0x20,'food':{'nutrition':0x8,'saturation_modifier':'good','is_meat':!![]}}),Item['setProperties'](0x16d,{'use_duration':0x20,'food':{'nutrition':0x2,'saturation_modifier':'low','is_meat':!![],'effects':[{'name':'hunger','chance':0.3,'duration':0x1e,'amplifier':0x0}]}}),Item['setProperties'](0x16e,{'use_duration':0x20,'food':{'nutrition':0x6,'saturation_modifier':'normal','is_meat':!![]}}),Item['setProperties'](0x1a7,{'use_duration':0x20,'food':{'nutrition':0x2,'saturation_modifier':'low','is_meat':!![]}}),Item['setProperties'](0x1a8,{'use_duration':0x20,'food':{'nutrition':0x6,'saturation_modifier':'good','is_meat':!![]}}),Item['setProperties'](0x16f,{'use_duration':0x20,'food':{'nutrition':0x4,'saturation_modifier':'poor','is_meat':!![],'effects':[{'name':'hunger','chance':0.8,'duration':0x1e,'amplifier':0x0}]}}),Item['setProperties'](0x177,{'use_duration':0x20,'food':{'nutrition':0x2,'saturation_modifier':'good','is_meat':![],'effects':[{'name':'poison','chance':0x1,'duration':0x5,'amplifier':0x0}]}}),Item['setProperties'](0x187,{'use_duration':0x20,'food':{'nutrition':0x3,'saturation_modifier':'normal','is_meat':![]},'seed':{'crop_result':'carrots','plant_at':'farmland'}}),Item['setProperties'](0x188,{'use_duration':0x20,'food':{'nutrition':0x1,'saturation_modifier':'low','is_meat':![]},'seed':{'crop_result':'potatoes','plant_at':'farmland'}}),Item['setProperties'](0x189,{'use_duration':0x20,'food':{'nutrition':0x5,'saturation_modifier':'normal','is_meat':![]}}),Item['setProperties'](0x18a,{'use_duration':0x20,'food':{'nutrition':0x2,'saturation_modifier':'low','is_meat':![],'effects':[{'name':'poison','chance':0.6,'duration':0x5,'amplifier':0x0}]}}),Item['setProperties'](0x18c,{'use_duration':0x20,'food':{'nutrition':0x6,'saturation_modifier':'supernatural','is_meat':![]}}),Item['setProperties'](0x190,{'use_duration':0x20,'food':{'nutrition':0x8,'saturation_modifier':'low','is_meat':![]}}),Item['setProperties'](0x19b,{'use_duration':0x20,'food':{'nutrition':0x3,'saturation_modifier':'low','is_meat':!![]}}),Item['setProperties'](0x1c9,{'use_duration':0x20,'food':{'nutrition':0x1,'saturation_modifier':'normal','is_meat':!![]}}),Item['setProperties'](0x19c,{'use_duration':0x20,'food':{'nutrition':0x5,'saturation_modifier':'normal','is_meat':!![]}}),Item['setProperties'](0x19d,{'use_duration':0x20,'max_stack_size':0x1,'food':{'nutrition':0xa,'saturation_modifier':'normal','using_converts_to':'bowl','is_meat':!![]}}),Item['setProperties'](0x1cb,{'use_duration':0x20,'food':{'nutrition':0x1,'saturation_modifier':'normal','is_meat':![]}});",
+    toggle(){
+        var mod = getModule("FastEat");
+        getState(mod) ? eval(getCode(mod).on) : eval(getCode(mod).off)
+     }
+});
 associateModule("InfiniteAura,IA", [!1, !1], "Combat", [{
     name: "Range",
     type: "int",
-    value: "50,1,100"
+    value: "100,1,100"
+},{
+    name: "Delay",
+    type: "int",
+    value: "10,1,20"
 }, {
     name: "From EntityList",
     type: "bool",
@@ -1119,44 +1150,65 @@ associateModule("InfiniteAura,IA", [!1, !1], "Combat", [{
     },
     lastpos: [0, 0, 0],
     oldrot: [0, 0],
-    timing: 15,
+    timing: 5,
+    st: 0,
     tick() {
         try {
             var mod = getModule("InfiniteAura");
             var sett = getSettings(mod, "Range", 0);
+            var delay = getSettings(mod, "Delay", 0);
             var ent = getCode(mod).getNearestEntity(sett);
             if (getState(mod) && ent != -1) {
 
                 if (Entity.getX(ent) != 0 && Entity.getY(ent) != 0 && Entity.getZ(ent) != 0) {
                     getCode(mod).timing--;
                     //getCode(mod).timing = 15
-                    if (getCode(mod).timing == 4) {
+                    if (getCode(mod).timing == 2) {
                         getCode(mod).lastpos[0] = Player.getX();
                         getCode(mod).lastpos[1] = Player.getY();
                         getCode(mod).lastpos[2] = Player.getZ();
+                        //getCode(mod).aim(ent);
                         //getCode(mod).oldrot[0] = Entity.getYaw(getPlayerEnt());
                         //getCode(mod).oldrot[1] = Entity.getPitch(getPlayerEnt());
                         var x = Entity.getX(ent);
                         var y = Entity.getY(ent) + 3;
                         var z = Entity.getZ(ent);
+                        setVelY(Player.getEntity(), -0.1);
                         Entity.setCollisionSize(ent, 10, 10);
                         Entity.setPosition(Player.getEntity(), x, y, z);
                     };
-                    if (getCode(mod).timing == 2) {
-                        //getCode(mod).aim(sett)
+                    if (getCode(mod).timing == 1) {
+                        getCode(mod).aim(ent)
                         getCode(mod).swing();
                     }
                     if (getCode(mod).timing == 0) {
                         //Entity.setCollisionSize(getCode(mod).getNearestEntity(sett), 0.8, 1.8);
                         Entity.setPosition(Player.getEntity(), getCode(mod).lastpos[0], getCode(mod).lastpos[1], getCode(mod).lastpos[2]);
+                        setVelY(Player.getEntity(), -0.1);
+                        //getCode(mod).st == 1 ? setVelX(Player.getEntity(), 0.1) : 
+                        //getCode(mod).st == 1 ? getCode(mod).st = 0 : getCode(mod).st++;
+                        if(getCode(mod).st == 1){
+                            getCode(mod).st = 0;
+                            setVelX(Player.getEntity(), 0.1);
+                        }else{
+                            getCode(mod).st++;
+                            setVelX(Player.getEntity(), -0.1);
+                        }
+                        getCode(mod).aim(ent);
                         //Entity.setRot(Player.getEntity(), getCode(mod).oldrot[0], getCode(mod).oldrot[1]);
-                        getCode(mod).timing = 15
+                        getCode(mod).timing = delay
                     }
                 }
             }
         } catch (e) {
             errorMessage(e)
         }
+    },
+    toggle(){
+        var mod = getModule("InfiniteAura");
+        getCode(mod).lastpos[0] = Player.getX();
+            getCode(mod).lastpos[1] = Player.getY();
+            getCode(mod).lastpos[2] = Player.getZ();
     }
 });
 associateModule("EntityList,EL", [!1, !1], "Misc", [{
@@ -1166,7 +1218,7 @@ associateModule("EntityList,EL", [!1, !1], "Misc", [{
 }, {
     name: "Minimal Range",
     type: "int",
-    value: "1,100000,12000000"
+    value: "0,100000,12000000"
 }, {
     name: "Mode",
     type: "string",
@@ -1403,51 +1455,6 @@ associateModule("EntityList,EL", [!1, !1], "Misc", [{
         }
     }
 });
-if (Halcyon.isDev) {
-    associateModule("NoVoid,NV", [!1, !1], "Player", [{
-        name: "Bypass",
-        type: "bool",
-        value: false
-    }], {
-        falling() {
-            var velo = -1;
-            if (Entity.getVelY(Player.getEntity()) <= velo) return !0;
-            return !1;
-
-        },
-        save() {
-            var px = Player.getX();
-            var pz = Player.getZ();
-            for (var i = 256.0; i > 0.0; i--) {
-                if (Level.getTile(px, i, pz) != 0) {
-                    Entity.setPosition(Player.getEntity(), px, i + 3, pz);
-                    break;
-                }
-            }
-        },
-        tick() {
-            var mod = getModule("NoVoid");
-            var sett = getSettings(mod, "Bypass", 0);
-            if (getState(mod) && getCode(mod).falling()) {
-                //let serverip = Server.getAddress();
-                //if (serverip == null) {
-                //    serverip = "offline"
-                // }
-                //if (serverip.indexOf("amazo") >= 0 || serverip == "offline") {
-                if (!sett) {
-                    Entity.setPosition(Player.getEntity(), Player.getX() + 1, Player.getY() + 8, Player.getZ());
-                    setVelY(Player.getEntity(), 0.1);
-                    getCode(mod).save();
-                } else {
-                    setVelY(Player.getEntity(), 1.2);
-                }
-                //  } else {
-                //  setVelY(Player.getEntity(), 0.1);
-            } //
-
-        }
-    });
-};
 associateModule("ESP,E", [!1, !1], "Misc", [{
     name: "From EntityList",
     type: "bool",
@@ -1666,6 +1673,51 @@ associateModule("ESP,E", [!1, !1], "Misc", [{
         }
     }
 });
+if (Halcyon.isDev) {
+    associateModule("NoVoid,NV", [!1, !1], "Player", [{
+        name: "Bypass",
+        type: "bool",
+        value: false
+    }], {
+        falling() {
+            var velo = -1;
+            if (Entity.getVelY(Player.getEntity()) <= velo) return !0;
+            return !1;
+
+        },
+        save() {
+            var px = Player.getX();
+            var pz = Player.getZ();
+            for (var i = 256.0; i > 0.0; i--) {
+                if (Level.getTile(px, i, pz) != 0) {
+                    Entity.setPosition(Player.getEntity(), px, i + 3, pz);
+                    break;
+                }
+            }
+        },
+        tick() {
+            var mod = getModule("NoVoid");
+            var sett = getSettings(mod, "Bypass", 0);
+            if (getState(mod) && getCode(mod).falling()) {
+                //let serverip = Server.getAddress();
+                //if (serverip == null) {
+                //    serverip = "offline"
+                // }
+                //if (serverip.indexOf("amazo") >= 0 || serverip == "offline") {
+                if (!sett) {
+                    Entity.setPosition(Player.getEntity(), Player.getX() + 1, Player.getY() + 8, Player.getZ());
+                    setVelY(Player.getEntity(), 0.1);
+                    getCode(mod).save();
+                } else {
+                    setVelY(Player.getEntity(), 1.2);
+                }
+                //  } else {
+                //  setVelY(Player.getEntity(), 0.1);
+            } //
+
+        }
+    });
+};
 
 /*------------------------*\
 | 🔥 Main
@@ -2344,7 +2396,7 @@ var button = () => {
     uithread(() => {
         try {
             let text = new android.widget.TextView(ctx);
-            text.setText(android.text.Html.fromHtml('<font color="red">H</font><font color="#FFFFFF">alcyon - build 1</font>'));
+            text.setText(android.text.Html.fromHtml('<font color="red">H</font><font color="#FFFFFF">alcyon - build 2</font>'));
             text.setTextColor(android.graphics.Color.WHITE);
             text.setTextSize(gs(17));
             text.setTypeface(android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.BOLD));
@@ -2589,7 +2641,7 @@ var menu = () => {
             params.setMargins(gs(dip2px(10)), gs(dip2px(5)), gs(dip2px(10)), gs(dip2px(5)));
 
             let text_main = new android.widget.TextView(ctx);
-            Halcyon.isDev ? text_main.setText(android.text.Html.fromHtml('<font color="#d90000">H</font><font color="#ffffff">alcyon - build 1 Dev</font>')) : text_main.setText(android.text.Html.fromHtml('<font color="#d90000">H</font><font color="#ffffff">alcyon - build 1 Alpha</font>'))
+            Halcyon.isDev ? text_main.setText(android.text.Html.fromHtml('<font color="#d90000">H</font><font color="#ffffff">alcyon - build 2 Dev</font>')) : text_main.setText(android.text.Html.fromHtml('<font color="#d90000">H</font><font color="#ffffff">alcyon - build 2 Alpha</font>'))
             text_main.setTextColor(-1);
             text_main.setGravity(android.view.Gravity.CENTER);
             text_main.setLayoutParams(params);
