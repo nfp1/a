@@ -1910,7 +1910,7 @@ var config = {
             var file = new java.io.File(config.dir, name + ".cfg");
             if (java.io.File(file).exists()) {
                 //var input = new Array(filemanager.read(file).split('\n'));
-                var input = String(filemanager.read(file)).split('\n')
+                
                 //var input = filemanager.read(file)
                 //clientMessage(typeof String(filemanager.read(file)).split('\n'));
                 //clientMessage(typeof String(filemanager.read(file)).split('\n'));
@@ -1936,12 +1936,14 @@ var config = {
                     })
                 });
 
+                var input = String(filemanager.read(file)).split('\n')
                 input.forEach((e, i, a) => {
                     if (i != a.length - 1) {
                         var par = e.split(":");
                         var mod = getModule(par[0]);
                         var state = par[1].split(",");
-                        var settings = par[2].split(';');
+                        if(par[2] != ""){
+                           var settings = par[2].split(';');
                         var newsettings = [];
                         settings.forEach((e, i, a) => {
                             if (i != a.length - 1) {
@@ -1968,11 +1970,9 @@ var config = {
                                 }
                             }
 
-                        })
-                        var state1 = state[0] == "true" ? true : false;
-                        var state2 = state[1] == "true" ? true : false;
-                        mod.state[0] = state1;
-                        mod.state[1] = state2;
+                        })};
+                        mod.state[0] = (state[0] == "true" ? true : false);
+                        mod.state[1] = (state[1] == "true" ? true : false);
 
                         if (mod.state[0]) {
                             if (getCode(mod).toggle != undefined) getCode(mod).toggle();
